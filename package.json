@@ -1,0 +1,34 @@
+{
+  "name": "chessbot",
+  "version": "1.0.0",
+  "description": "A pull request bot that validate the movement and merge automatically.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node --require dotenv/config .",
+    "test": "standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SyaOS/chess.git"
+  },
+  "keywords": [
+    "chess"
+  ],
+  "author": "George Cheng <Gerhut@GMail.com>",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/SyaOS/chess/issues"
+  },
+  "homepage": "https://github.com/SyaOS/chess#readme",
+  "dependencies": {
+    "@octokit/rest": "^15.9.6",
+    "@octokit/webhooks": "^5.0.0",
+    "chess.js": "^0.10.2",
+    "debug": "^3.1.0",
+    "dotenv": "^6.0.0",
+    "node-fetch": "^2.2.0"
+  },
+  "devDependencies": {
+    "standard": "^11.0.1"
+  }
+}
