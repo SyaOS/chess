@@ -31,7 +31,7 @@ const parseBoard = board => {
     squares.pop()
 
     squares.forEach((square, index) => {
-      if (square === '　') return
+      if (square === '　' || square === '  ') return
       const squareIndex = String.fromCharCode('a'.charCodeAt(0) + index) + lineIndex
       const piece = {
         '♜': { type: chess.ROOK, color: chess.BLACK },
