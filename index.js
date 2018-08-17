@@ -98,8 +98,7 @@ webhooks.on(['pull_request.opened', 'pull_request.reopened'], async ({ payload }
     })
     assert(commits.length > 0, 'There must be an initial commit.')
 
-    const commit = commits[0]
-    const message = commit.commit.message
+    const message = commits[0].commit.message
     log('Current history', message)
 
     const chess = new Chess()
@@ -128,7 +127,7 @@ webhooks.on(['pull_request.opened', 'pull_request.reopened'], async ({ payload }
       ...pullRequestMeta,
       commit_title: 'Moved by Chessbot',
       commit_message: chess.history().join('\n'),
-      sha: commit.sha,
+      sha: pullRequest.head.sha,
       merge_method: 'squash'
     })
 
