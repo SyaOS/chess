@@ -88,7 +88,7 @@ webhooks.on('pull_request.opened', async ({ payload }) => {
 
     const board = await fetch(file.raw_url).then(response => {
       assert(response.ok, 'Request content failed.')
-      response.text()
+      return response.text()
     })
     log('Target Board', board)
     const asciiBoard = parseBoard(board)
