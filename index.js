@@ -124,7 +124,7 @@ webhooks.on(['pull_request.opened', 'pull_request.reopened'], async ({ payload }
 
     log('Validate move, merging', currentMove)
 
-    const { data: mergeResult } = await rest.pullRequests.merge({
+    const mergeResult = await rest.pullRequests.merge({
       ...pullRequestMeta,
       commit_title: 'Moved by Chessbot',
       commit_message: chess.history().join('\n'),
@@ -132,7 +132,7 @@ webhooks.on(['pull_request.opened', 'pull_request.reopened'], async ({ payload }
       merge_method: 'squash'
     })
 
-    console.log('Merged', mergeResult)
+    log('Merged', mergeResult)
   } catch (e) {
     if (!(e instanceof assert.AssertionError)) throw e
 
