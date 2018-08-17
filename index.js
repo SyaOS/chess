@@ -60,93 +60,95 @@ webhooks.on(['pull_request.opened', 'pull_request.reopened'], async ({ payload }
   const log = debug(`chessbot:#${payload.number}`)
   const { 'pull_request': pullRequest } = payload
 
-  if (pullRequest.base.ref !== pullRequest.base.repo.default_branch) {
-    return log('Ignored', 'base is not default branch')
-  }
-
-  const repoMeta = {
-    owner: pullRequest.base.repo.owner.login,
-    repo: pullRequest.base.repo.name
-  }
-  const pullRequestMeta = {
-    ...repoMeta,
-    number: pullRequest.number
-  }
-
   try {
-    const { data: files } = await rest.pullRequests.getFiles({
-      ...pullRequestMeta,
-      per_page: 2
-    })
-    log(files)
-    assert(files.length === 1, 'Only `README.md` should be changed.')
+    if (pullRequest.base.ref !== pullRequest.base.repo.default_branch) {
+      return log('Ignored', 'base is not default branch')
+    }
 
-    const file = files[0]
-    assert(file.filename === 'README.md' && file.status === 'modified',
-      'Only `README.md` should be changed.')
-
-    const board = await fetch(file.raw_url).then(response => {
-      assert(response.ok, 'Request content failed.')
-      return response.text()
-    })
-    log('Target Board', board)
-    const asciiBoard = parseBoard(board)
-
-    const { data: commits } = await rest.repos.getCommits({
+    const repoMeta = {
+      owner: pullRequest.base.repo.owner.login,
+      repo: pullRequest.base.repo.name
+    }
+    const pullRequestMeta = {
       ...repoMeta,
-      per_page: 1
-    })
-    assert(commits.length > 0, 'There must be an initial commit.')
+      number: pullRequest.number
+    }
 
-    const message = commits[0].commit.message
-    log('Current history', message)
+    try {
+      const { data: files } = await rest.pullRequests.getFiles({
+        ...pullRequestMeta,
+        per_page: 2
+      })
+      log(files)
+      assert(files.length === 1, 'Only `README.md` should be changed.')
 
-    const chess = new Chess()
-    if (message !== 'Initial commit') {
-      const moves = message.split('\n').slice(2)
-      for (const move of moves) {
+      const file = files[0]
+      assert(file.filename === 'README.md' && file.status === 'modified',
+        'Only `README.md` should be changed.')
+
+      const board = await fetch(file.raw_url).then(response => {
+        assert(response.ok, 'Request content failed.')
+        return response.text()
+      })
+      log('Target Board', board)
+      const asciiBoard = parseBoard(board)
+
+      const { data: commits } = await rest.repos.getCommits({
+        ...repoMeta,
+        per_page: 1
+      })
+      assert(commits.length > 0, 'There must be an initial commit.')
+
+      const message = commits[0].commit.message
+      log('Current history', message)
+
+      const chess = new Chess()
+      if (message !== 'Initial commit') {
+        const moves = message.split('\n').slice(2)
+        for (const move of moves) {
+          chess.move(move)
+        }
+      }
+
+      let currentMove = null
+      for (const move of chess.moves()) {
         chess.move(move)
+        if (chess.ascii() === asciiBoard) {
+          currentMove = move
+          break
+        }
+        chess.undo()
       }
-    }
 
-    let currentMove = null
-    for (const move of chess.moves()) {
-      chess.move(move)
-      if (chess.ascii() === asciiBoard) {
-        currentMove = move
-        break
+      assert(currentMove !== null, 'Invalid move')
+
+      log('Validate move, merging', currentMove)
+
+      return rest.pullRequests.merge({
+        ...pullRequestMeta,
+        commit_title: `Moved by @${pullRequest.user.login}`,
+        commit_message: chess.history().join('\n'),
+        sha: pullRequest.head.sha,
+        merge_method: 'squash'
+      })
+    } catch (e) {
+      if (!(e instanceof assert.AssertionError)) {
+        throw e
       }
-      log('Not', move)
-      chess.undo()
+
+      await rest.pullRequests.createComment({
+        ...pullRequestMeta,
+        body: e.message
+      })
+
+      await rest.pullRequests.update({
+        ...pullRequestMeta,
+        state: 'closed'
+      })
+      return log('Closed', e.message)
     }
-
-    assert(currentMove !== null, 'Invalid move')
-
-    log('Validate move, merging', currentMove)
-
-    return rest.pullRequests.merge({
-      ...pullRequestMeta,
-      commit_title: `Moved by @${pullRequest.user.login}`,
-      commit_message: chess.history().join('\n'),
-      sha: pullRequest.head.sha,
-      merge_method: 'squash'
-    })
   } catch (e) {
-    if (!(e instanceof assert.AssertionError)) {
-      log('Uncaught error', e)
-      throw e
-    }
-
-    await rest.pullRequests.createComment({
-      ...pullRequestMeta,
-      body: e.message
-    })
-
-    await rest.pullRequests.update({
-      ...pullRequestMeta,
-      state: 'closed'
-    })
-    return log('Closed', e.message)
+    log('Uncaught error', e)
   }
 })
 
