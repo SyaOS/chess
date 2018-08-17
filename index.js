@@ -50,6 +50,7 @@ const parseBoard = board => {
 
       assert(piece !== undefined, `Unknown piece in ${squareIndex}: ${square}`)
 
+      console.log(square, squareIndex)
       chess.put(piece, squareIndex)
     })
   })
@@ -114,7 +115,6 @@ webhooks.on('pull_request.opened', async ({ payload }) => {
     let currentMove = null
     for (const move of chess.moves()) {
       chess.move(move)
-      log(chess.ascii(), asciiBoard)
       if (chess.ascii() === asciiBoard) {
         currentMove = move
         break
