@@ -125,7 +125,7 @@ webhooks.on(['pull_request.opened', 'pull_request.reopened'], async ({ payload }
 
     return rest.pullRequests.merge({
       ...pullRequestMeta,
-      commit_title: 'Moved by Chessbot',
+      commit_title: `Moved by ${pullRequest.user.login}`,
       commit_message: chess.history().join('\n'),
       sha: pullRequest.head.sha,
       merge_method: 'squash'
