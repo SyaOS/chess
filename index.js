@@ -79,6 +79,7 @@ webhooks.on('pull_request.opened', async ({ payload }) => {
       ...pullRequestMeta,
       per_page: 2
     })
+    log(files)
     assert(files.length === 1, 'Only `README.md` should be changed.')
 
     const file = files[0]
@@ -86,7 +87,7 @@ webhooks.on('pull_request.opened', async ({ payload }) => {
       'Only `README.md` should be changed.')
 
     const board = await fetch(file.raw_url).then(response => response.text())
-    debug('Target Board', board)
+    log('Target Board', board)
     const asciiBoard = parseBoard(board)
 
     const { data: commits } = await rest.repos.getCommits({
@@ -97,7 +98,7 @@ webhooks.on('pull_request.opened', async ({ payload }) => {
 
     const commit = commits[0]
     const message = commit.commit.message
-    debug('Current history', message)
+    log('Current history', message)
 
     const chess = new Chess()
     if (message !== 'Initial commit') {
@@ -119,7 +120,7 @@ webhooks.on('pull_request.opened', async ({ payload }) => {
 
     assert(currentMove !== null, 'Invalid move')
 
-    debug('Validated move, merged', currentMove)
+    log('Validated move, merged', currentMove)
 
     await rest.pullRequests.merge({
       ...pullRequestMeta,
