@@ -32,7 +32,7 @@ const parseBoard = board => {
 
     squares.forEach((square, index) => {
       if (square === '　') return
-      const squareIndex = lineIndex + String.fromCharCode('a'.charCodeAt(0) + index)
+      const squareIndex = String.fromCharCode('a'.charCodeAt(0) + index) + lineIndex
       const piece = {
         '♜': { type: chess.ROOK, color: chess.BLACK },
         '♞': { type: chess.KNIGHT, color: chess.BLACK },
