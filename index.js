@@ -123,24 +123,26 @@ webhooks.on(['pull_request.opened', 'pull_request.reopened'], async ({ payload }
 
     log('Validate move, merging', currentMove)
 
-    const mergeResult = await rest.pullRequests.merge({
+    return rest.pullRequests.merge({
       ...pullRequestMeta,
       commit_title: 'Moved by Chessbot',
       commit_message: chess.history().join('\n'),
       sha: pullRequest.head.sha,
       merge_method: 'squash'
     })
-
-    log('Merged', mergeResult)
   } catch (e) {
     if (!(e instanceof assert.AssertionError)) {
       log('Uncaught error', e)
       throw e
     }
 
+    await rest.pullRequests.createComment({
+      ...pullRequestMeta,
+      body: e.message
+    })
+
     await rest.pullRequests.update({
       ...pullRequestMeta,
-      body: e.message,
       state: 'closed'
     })
     return log('Closed', e.message)
