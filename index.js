@@ -134,7 +134,10 @@ webhooks.on(['pull_request.opened', 'pull_request.reopened'], async ({ payload }
 
     log('Merged', mergeResult)
   } catch (e) {
-    if (!(e instanceof assert.AssertionError)) throw e
+    if (!(e instanceof assert.AssertionError)) {
+      log('Uncaught error', e)
+      throw e
+    }
 
     await rest.pullRequests.update({
       ...pullRequestMeta,
