@@ -86,7 +86,10 @@ webhooks.on('pull_request.opened', async ({ payload }) => {
     assert(file.filename === 'README.md' && file.status === 'modified',
       'Only `README.md` should be changed.')
 
-    const board = await fetch(file.raw_url).then(response => response.text())
+    const board = await fetch(file.raw_url).then(response => {
+      assert(response.ok, 'Request content failed.')
+      response.text()
+    })
     log('Target Board', board)
     const asciiBoard = parseBoard(board)
 
