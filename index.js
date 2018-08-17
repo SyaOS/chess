@@ -116,6 +116,7 @@ webhooks.on(['pull_request.opened', 'pull_request.reopened'], async ({ payload }
         currentMove = move
         break
       }
+      log('Not', move)
       chess.undo()
     }
 
