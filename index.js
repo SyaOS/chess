@@ -49,11 +49,11 @@ const parseBoard = board => {
       }[square]
 
       assert(piece !== undefined, `Unknown piece in ${squareIndex}: ${square}`)
-
-      console.log(square, squareIndex)
-      chess.put(piece, squareIndex)
+      assert(chess.put(piece, squareIndex), `Put ${JSON.stringify(piece)} into ${squareIndex} failed.`)
     })
   })
+
+  console.log(chess.ascii())
 
   return chess.ascii()
 }
