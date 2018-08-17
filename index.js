@@ -136,10 +136,9 @@ webhooks.on(['pull_request.opened', 'pull_request.reopened'], async ({ payload }
         throw e
       }
 
-      await rest.pullRequests.createComment({
+      await rest.issues.createComment({
         ...pullRequestMeta,
-        body: e.message,
-        commit_id: pullRequest.head.sha
+        body: e.message
       })
 
       await rest.pullRequests.update({
