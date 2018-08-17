@@ -82,7 +82,7 @@ webhooks.on('pull_request.opened', async ({ payload }) => {
     assert(files.length === 1, 'Only `README.md` should be changed.')
 
     const file = files[0]
-    assert(file.filename === 'README.md' && file.status === 'changed',
+    assert(file.filename === 'README.md' && file.status === 'modified',
       'Only `README.md` should be changed.')
 
     const board = await fetch(file.raw_url).then(response => response.text())
