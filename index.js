@@ -115,8 +115,9 @@ webhooks.on(['pull_request.opened', 'pull_request.reopened'], async ({ payload }
     let currentMove = null
     for (const move of chess.moves()) {
       chess.move(move)
-      console.log(chess.ascii(), asciiBoard)
+      console.log(chess.ascii(), asciiBoard, chess.ascii() === asciiBoard)
       if (chess.ascii() === asciiBoard) {
+        console.log(move)
         currentMove = move
         break
       }
