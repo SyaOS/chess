@@ -58,7 +58,7 @@ const parseBoard = board => {
   return chess.ascii()
 }
 
-webhooks.on('pull_request.opened', async ({ payload }) => {
+webhooks.on(['pull_request.opened', 'pull_request.reopened'], async ({ payload }) => {
   const log = debug(`chessbot:#${payload.number}`)
   const { 'pull_request': pullRequest } = payload
 
